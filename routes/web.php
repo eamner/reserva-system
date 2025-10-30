@@ -24,3 +24,4 @@ Route::get('/', function () {
 
 Route::resource('resources', ResourceController::class);
 Route::resource('reservations', ReservationController::class);
+//Route::post('reservations', [ReservationController::class, 'store'])->name('reservations.store');

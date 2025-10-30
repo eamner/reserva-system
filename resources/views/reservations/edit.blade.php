@@ -1,92 +1,73 @@
 @extends('layouts.app')
+
 @section('content')
-<div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 bg-white border-b border-gray-200">
-                <form action="{{ route('reservations.update', $reservation) }}" method="POST" class="space-y-4">
-                    @csrf
-                    @method('PUT')
+<div class="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold mb-6 text-gray-800">Actualizar reservación</h1>
 
-                    <div class="mb-4">
-                        <label for="description" class="block text-sm font-medium">Descripción</label>
-                        <input type="text" name="description" id="description" rows="3"
-                            class="mt-1 w-full border rounded p-2" value="{{ old('description', $reservation->description) }}"></input>
-                        @error('description')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+    @if ($errors->any())
+    <div class="mb-4 p-4 bg-red-100 text-red-700 rounded">
+        <ul class="list-disc ml-5">
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
 
-                    <div>
-                        <label for="status" class="block text-sm font-medium">Estado</label>
-                        <select name="status" id="status" class="mt-1 w-full border rounded p-2">
-                            <option value="open" {{ old('status', $reservation->status) == 'open' ? 'selected' : '' }}>Abierta</option>
-                            <option value="accepted" {{ old('status', $reservation->status) == 'accepted' ? 'selected' : '' }}>Aceptada</option>
-                            <option value="cancelled" {{ old('status', $reservation->status) == 'cancelled' ? 'selected' : '' }}>Cancelada</option>
-                        </select>
-                        @error('status')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+    <form action="{{ route('reservations.update', $reservation->id) }}" method="POST" class="space-y-5">
+        @csrf
+        @method('PUT')
 
-                    {{-- SELECCIÓN DE USUARIO Y RECURSO --}}
-                    <div>
-                        <label for="user_id" class="block text-sm font-medium">Usuario</label>
-                        <select name="user_id" id="user_id" class="mt-1 w-full border rounded p-2">
-                            @foreach($users as $user)
-                            <option value="{{ $user->id }}"
-                                {{ old('user_id', $reservation->user_id) == $user->id ? 'selected' : '' }}>
-                                {{ $user->name }}
-                            </option>
-                            @endforeach
-                        </select>
-                        @error('user_id')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+        <div>
+            <label class="block text-gray-700 mb-1 font-medium">Recurso</label>
+            <select name="resource_id" class="w-full border border-gray-300 rounded p-2">
+                @foreach ($resources as $resource)
+                <option value="{{ $resource->id }}">{{ $resource->name }}</option>
+                @endforeach
+            </select>
+        </div>
 
-                    <div>
-                        <label for="resource_id" class="block text-sm font-medium">Recurso</label>
-                        <select name="resource_id" id="resource_id" class="mt-1 w-full border rounded p-2">
-                            @foreach($resources as $resource)
-                            <option value="{{ $resource->id }}"
-                                {{ old('resource_id', $reservation->resource_id) == $resource->id ? 'selected' : '' }}>
-                                {{ $resource->name }}
-                            </option>
-                            @endforeach
-                        </select>
-                        @error('resource_id')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+        <div>
+            <label class="block text-gray-700 mb-1 font-medium">Usuario</label>
+            <select name="user_id" class="w-full border border-gray-300 rounded p-2">
+                @foreach ($users as $user)
+                <option value="{{ $user->id }}">{{ $user->user_id }}</option>
+                @endforeach
+            </select>
+        </div>
 
-                    {{-- FECHA Y HORA DE INICIO Y FIN --}}
-                    <div>
-                        <label for="start_time" class="block text-sm font-medium">Inicio</label>
-                        <input type="datetime-local" name="start_time" id="start_time"
-                            class="mt-1 w-full border rounded p-2"
-                            value="{{ old('start_time', \Carbon\Carbon::parse($reservation->start_time)->format('Y-m-d\TH:i')) }}">
-                        @error('start_time')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div>
-                        <label for="end_time" class="block text-sm font-medium">Fin</label>
-                        <input type="datetime-local" name="end_time" id="end_time"
-                            class="mt-1 w-full border rounded p-2"
-                            value="{{ old('end_time', \Carbon\Carbon::parse($reservation->end_time)->format('Y-m-d\TH:i')) }}">
-                        @error('end_time')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+        <div>
+            <label class="block text-gray-700 mb-1 font-medium">Descripción</label>
+            <textarea name="description" rows="3" class="w-full border border-gray-300 rounded p-2">{{ old('description', $reservation->description) }}</textarea>
+        </div>
 
-                    <div class="flex justify-end space-x-2">
-                        <a href="{{ route('reservations.index') }}" class="px-4 py-2 bg-gray-300 rounded">Cancelar</a>
-                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Actualizar</button>
-                    </div>
-                </form>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-gray-700 mb-1 font-medium">Inicio</label>
+                <input type="datetime-local" name="start_time" class="w-full border border-gray-300 rounded p-2" value="{{ old('start_time', $reservation->start_time) }}">
+            </div>
+            <div>
+                <label class="block text-gray-700 mb-1 font-medium">Fin</label>
+                <input type="datetime-local" name="end_time" class="w-full border border-gray-300 rounded p-2" value="{{ old('end_time', $reservation->end_time) }}">
             </div>
         </div>
-    </div>
+
+        <div>
+            <label class="block text-gray-700 mb-1 font-medium">Estado</label>
+            <select name="status" class="w-full border border-gray-300 rounded p-2">
+                <option value="open" @selected(old('status', $reservation->status) === 'pendiente')>Pendiente</option>
+                <option value="accepted" @selected(old('status', $reservation->status) === 'aprobada')>Aprobada</option>
+                <option value="cancelled" @selected(old('status', $reservation->status) === 'rechazada')>Rechazada</option>
+            </select>
+        </div>
+
+        <div class="flex justify-end">
+            <button type="submit"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded">
+                Guardar Reservación
+            </button>
+            <a href="{{ route('reservations.index') }}" class="ml-3 inline-block px-4 py-2 border rounded text-gray-700">Cancelar</a>
+        </div>
+    </form>
 </div>
 @endsection

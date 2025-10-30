@@ -14,8 +14,11 @@ class ReservationController extends Controller
      */
     public function index()
     {
-        $reservations = Reservation::orderBy('start_time', 'desc')->paginate(10);
-        return view('reservations.index', compact('reservations'));
+        //$reservations = Reservation::orderBy('start_time', 'desc')->paginate(10);
+        //$reservations = Reservation::with('resource', 'user')->orderBy('start_time', 'desc')->paginate(10);
+        //return view('reservations.index', compact('reservations'));
+        //return Reservation::with('resource')->paginate(10);
+        return view('reservations.index');
     }
 
     /**
@@ -33,14 +36,14 @@ class ReservationController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'resource_id' => 'required|exists:resources,id',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'date' => 'required|date',
         ]);
-        Reservation::create($request->all());
-        return redirect()->route('reservations.index')->with('success', 'Reserva creada con éxito.');
+        $reservation = Reservation::create($validated);
+
+        return response()->json(['success' => 'true', 'reservation' => $reservation], 201);
     }
 
     /**
@@ -88,5 +91,11 @@ class ReservationController extends Controller
         $reservation = Reservation::findOrFail($id);
         $reservation->delete();
         return redirect()->route('reservations.index')->with('success', 'Reservación eliminada con éxito.');
+    }
+
+    public function apiIndex()
+    {
+        $reservations = Reservation::with(['user', 'resource'])->get();
+        return response()->json($reservations, 200);
     }
 }
